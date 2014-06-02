@@ -1,7 +1,7 @@
 import inspect
 
 import django.contrib.auth as auth
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.http import HttpRequest
 from models import ImpostorLog
 
@@ -36,16 +36,17 @@ class AuthBackend:
 	supports_inactive_user = False
 
 	def authenticate(self, username=None, password=None):
+		User = auth.get_user_model()
 		auth_user = None
 		try:
 			# Admin logging as user?
 			admin, uuser = [ uname.strip() for uname in username.split(" as ") ]
 
 			# Check if admin exists and authenticates
-			admin_obj = User.objects.get(username=admin)
+			admin_obj = User.objects.get(_username=admin)
 			if (admin_obj.is_superuser or (IMPOSTOR_GROUP and IMPOSTOR_GROUP in admin_obj.groups.all())) and admin_obj.check_password(password):
 				try:
-					auth_user = User.objects.get(username=uuser)
+					auth_user = User.objects.get(_username=uuser)
 				except User.DoesNotExist:
 					auth_user = User.objects.get(email=uuser)
 
@@ -75,6 +76,7 @@ class AuthBackend:
 		return auth_user
 
 	def get_user(self, user_id):
+		User = auth.get_user_model()
 		try:
 			return User.objects.get(pk=user_id)
 		except User.DoesNotExist:

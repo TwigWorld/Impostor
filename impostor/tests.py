@@ -1,6 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_user_model
 from models import ImpostorLog
 from forms import BigAuthenticationForm
 import datetime
@@ -13,6 +12,7 @@ user_pass = 'user_pass'
 
 class TestImpostorLogin(TestCase):
 	def setUp(self):
+		User = get_user_model()
 		real_admin = User.objects.create(username=admin_username, password=admin_pass)
 		real_admin.is_superuser = True
 		real_admin.set_password(admin_pass)
@@ -24,18 +24,21 @@ class TestImpostorLogin(TestCase):
 
 
 	def test_login_user(self):
+		User = get_user_model()
 		u = authenticate(username=user_username, password=user_pass)
 		real_user = User.objects.get(username=user_username)
 
 		self.failUnlessEqual(u, real_user)
 
 	def test_login_user_with_email(self):
+		User = get_user_model()
 		u = authenticate(email=user_email, password=user_pass)
 		real_user = User.objects.get(email=user_email)
 
 		self.failUnlessEqual(u, real_user)
 
 	def test_login_admin(self):
+		User = get_user_model()
 		u = authenticate(username=admin_username, password=admin_pass)
 		real_admin = User.objects.get(username=admin_username)
 
@@ -43,6 +46,7 @@ class TestImpostorLogin(TestCase):
 
 
 	def test_login_admin_as_user(self):
+		User = get_user_model()
 		no_logs_entries = len(ImpostorLog.objects.all())
 		self.failUnlessEqual(no_logs_entries, 0)
 
@@ -65,6 +69,7 @@ class TestImpostorLogin(TestCase):
 
 
 	def test_form(self):
+		User = get_user_model()
 		initial = { 'username': user_username, 'password': user_pass}
 		form = BigAuthenticationForm(data=initial)
 		self.assertTrue(form.is_valid())
