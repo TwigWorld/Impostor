@@ -70,7 +70,7 @@ if len(sys.argv) > 1 and sys.argv[1] == 'bdist_wininst':
 
 setup(
 	name = "Impostor",
-	version = "1.0.3",
+	version = "2.0.0",
 	url = 'https://github.com/samastur/Impostor/',
 	author = 'Marko Samastur',
 	author_email = 'markos@gaivo.net',
